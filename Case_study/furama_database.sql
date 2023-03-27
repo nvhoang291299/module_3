@@ -27,6 +27,15 @@ create table employee (
     foreign key (id_degree) references degree (id_degree),
     foreign key (id_department) references department (id_department)
 );
+insert into employee(full_name, date_of_birth, id_card, salary, number_phone, email, address) 
+values ('hoang', '2000-02-01', 187777000, 15000000, 0987777777, 'hoang@gmail.com', 'nghe an'), 
+('duc', '2000-12-01', 187777000, 15000000, 0987777777, 'duc@gmail.com', 'da nang'),
+('huy', '1998-12-01', 187777000, 15000000, 0987777777, 'huy@gmail.com', 'quang tri'),
+('helloworlddddddd', '2000-12-01', 187777000, 15000000, 0987777777, 'helloworld@gmail.com', 'da nang');
+insert into employee(full_name, date_of_birth, id_card, salary, number_phone, email, address) 
+values ('thuong', '2000-02-01', 187777000, 15000000, 0987777777, 'hoang@gmail.com', 'nghe an'), 
+('khanh', '2000-12-01', 187777000, 15000000, 0987777777, 'duc@gmail.com', 'da nang');
+select * from employee where (full_name like 'h%' or full_name like 't%' or full_name like 'k%') and char_length(full_name) <= 15;
 create table customer_type (
 	id_customer_type int primary key auto_increment,
     name_customer_type varchar(45)
@@ -42,6 +51,7 @@ create table customer (
     email varchar(45),
     address varchar(45)
 );
+alter table customer add foreign key (id_customer_type) references customer_type(id_customer_type);
 create table type_of_service (
 	id_type_of_service int primary key auto_increment,
     name_type_of_service varchar(45)
