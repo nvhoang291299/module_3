@@ -25,9 +25,9 @@ create table teachers(
 insert into teachers(id, name_teacher, age, country) values (1, 'Nguyen Viet Hoang', 23, 'vietnam');
 insert into teachers(name_teacher, age, country) values ('Hai dep trai', 23, 'vietnam');
 select * from teachers;
-create table class(
+create table classroom(
 	id int primary key auto_increment not null,
     name_class varchar(45) not null
 );
-insert into class(id, name_class) values (1, 'c1222g1');
-select * from class, students, teachers;
+insert into classroom(name_class) values ('c1222g1');
+select * from classroom, students, teachers;
