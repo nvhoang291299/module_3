@@ -74,5 +74,7 @@ set sql_safe_updates = 1;
 select student.student_name, subjects.sub_name, mark.mark 
 from student
 inner join mark
+on student.student_id = mark.student_id
+inner join subjects
 on subjects.sub_id = mark.sub_id
 order by mark desc, student_name asc;
