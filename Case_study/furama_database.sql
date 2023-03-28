@@ -27,19 +27,14 @@ create table employee (
     foreign key (id_degree) references degree (id_degree),
     foreign key (id_department) references department (id_department)
 );
-insert into employee(full_name, date_of_birth, id_card, salary, number_phone, email, address) 
-values ('hoang', '2000-02-01', 187777000, 15000000, 0987777777, 'hoang@gmail.com', 'nghe an'), 
-('duc', '2000-12-01', 187777000, 15000000, 0987777777, 'duc@gmail.com', 'da nang'),
-('huy', '1998-12-01', 187777000, 15000000, 0987777777, 'huy@gmail.com', 'quang tri'),
-('helloworlddddddd', '2000-12-01', 187777000, 15000000, 0987777777, 'helloworld@gmail.com', 'da nang');
-insert into employee(full_name, date_of_birth, id_card, salary, number_phone, email, address) 
-values ('thuong', '2000-02-01', 187777000, 15000000, 0987777777, 'hoang@gmail.com', 'nghe an'), 
-('khanh', '2000-12-01', 187777000, 15000000, 0987777777, 'duc@gmail.com', 'da nang');
+
 select * from employee where (full_name like 'h%' or full_name like 't%' or full_name like 'k%') and char_length(full_name) <= 15;
+
 create table customer_type (
 	id_customer_type int primary key auto_increment,
     name_customer_type varchar(45)
 );
+
 create table customer (
 	id_customer int primary key auto_increment,
     id_customer_type int,
@@ -52,6 +47,7 @@ create table customer (
     address varchar(45)
 );
 alter table customer add foreign key (id_customer_type) references customer_type(id_customer_type);
+
 create table type_of_service (
 	id_type_of_service int primary key auto_increment,
     name_type_of_service varchar(45)
@@ -102,5 +98,15 @@ create table contract (
     foreign key (id_customer) references customer (id_customer),
     foreign key (id_service) references service (id_service)
 );
-
-
+insert into customer_type(name_customer_type) values ('diamond'), ('platium'), ('gold'), ('silver'), ('members');
+select * from customer_type;
+insert into department (name_department) values ('sale-marketing'), ('hành chính'), ('phục vụ'), ('quản lý');
+select * from department;
+insert into position (id_position, name_position) values (1, 'quản lý'), (2, 'nhân viên');
+select * from position;
+insert into degree (name_degree) values ('trung cấp'), ('cao đẳng'), ('đại học'), ('sau đại học');
+select * from degree;
+insert into rental_type(name_rental_type) values ('year'), ('month'), ('day'), ('hour');
+select * from rental_type;
+insert into type_of_service(name_type_of_service) values ('villa'), ('house'), ('room');
+select * from accompanied_service;
