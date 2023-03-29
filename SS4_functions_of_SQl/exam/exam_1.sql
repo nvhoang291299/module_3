@@ -1,4 +1,4 @@
-create database student_management;
+create database student_management_ss4;
 create table classroom (
     class_id int not null auto_increment primary key,
     class_name varchar(60) not null,
@@ -21,7 +21,6 @@ create table subjects (
     credit tinyint not null default 1 check (credit >= 1),
     subject_status bit default 1
 );
-
 create table mark (
     mark_id int not null auto_increment primary key,
     sub_id int not null,
@@ -47,33 +46,26 @@ values (1, 'CF', 5, 1),
        (2, 'C', 6, 1),
        (3, 'HDJ', 5, 1),
        (4, 'RDBMS', 10, 1);
-
+insert into subjects
+values (5, 'RDBMS', 10, 1);
 insert into mark (sub_id, student_id, mark, exam_times)
 values (1, 1, 8, 1),
        (1, 2, 10, 2),
        (2, 1, 12, 1);
  select * from student;      
--- Hiển thị tất cả các sinh viên có tên bắt đầu bảng ký tự ‘h’  
-select * from student where student_name like 'h%';
+ 
+ -- Hiển thị tất cả các thông tin môn học (bảng subject) có credit lớn nhất.
+ select * from subjects 
+ where credit = (select max(credit) from subjects);
+ 
+ -- Hiển thị các thông tin môn học có điểm thi lớn nhất.
+select * from mark;
+select * from subjects
+inner join mark on subjects.sub_id = mark.sub_id
+where mark = (select max(mark) from mark);
 
--- Hiển thị các thông tin lớp học có thời gian bắt đầu vào tháng 12.
-select * from classroom where month(start_date) = '12';
-
--- Hiển thị tất cả các thông tin môn học có credit trong khoảng từ 3-5. 
-select * from subjects where credit >= 3 and credit <= 5;
-
--- Thay đổi mã lớp(ClassID) của sinh viên có tên ‘Hung’ là 2.
-set sql_safe_updates = 0;
-update student 
-set class_id = 2
-where student_name = 'hung';
-set sql_safe_updates = 1;
-
--- Hiển thị các thông tin: StudentName, SubName, Mark. Dữ liệu sắp xếp theo điểm thi (mark) giảm dần. nếu trùng sắp theo tên tăng dần.
-select student.student_name, subjects.sub_name, mark.mark 
-from student
-inner join mark
-on student.student_id = mark.student_id
-inner join subjects
-on subjects.sub_id = mark.sub_id
-order by mark desc, student_name asc;
+-- Hiển thị các thông tin sinh viên và điểm trung bình của mỗi sinh viên, xếp hạng theo thứ tự điểm giảm dần
+select student.*, avg(mark) from student 
+inner join mark on student.student_id = mark.student_id
+group by student_id, student_name
+order by avg(mark) desc;

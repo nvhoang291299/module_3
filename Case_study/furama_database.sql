@@ -28,8 +28,6 @@ create table employee (
     foreign key (id_department) references department (id_department)
 );
 
-select * from employee where (full_name like 'h%' or full_name like 't%' or full_name like 'k%') and char_length(full_name) <= 15;
-
 create table customer_type (
 	id_customer_type int primary key auto_increment,
     name_customer_type varchar(45)
@@ -137,7 +135,6 @@ values 	(1,'2020-12-08', '2020-12-08', 0, 3, 1,3),
 		(11,'2021-04-25', '2021-04-25', 0, 2, 2,	1),
 		(12,'2021-05-25', '2021-05-27', 0, 7, 10, 1);
 select * from contract;
-
 insert into detailed_contract(id_detailed_contract, id_contract, id_accompanied_service , quantity)
 values 	(1,2,4,5),
 		(2,2,5,8),
@@ -148,3 +145,13 @@ values 	(1,2,4,5),
         (7,1,2,2),
         (8,12,2,2);
 select * from detailed_contract;
+
+-- Hiển thị thông tin của tất cả nhân viên có trong hệ thống có tên bắt đầu là một trong các ký tự “H”, “T” hoặc “K” và có tối đa 15 kí tự.
+select * from employee;
+select * from employee where full_name regexp '([a-z]*) )*((h)[a-z]*)+$'; 
+-- and length(full_name) <= 15;
+select * from customer 
+where year(curdate()) - year(date_of_birth) < 50 and year(curdate()) - year(date_of_birth) > 18 
+and address like '% Đà Nẵng' or address like '% Quảng Trị';
+select  year(curdate()) - year(date_of_birth) from customer;
+-- (select year(curdate()) - year(date_of_birth)
