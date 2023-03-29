@@ -148,10 +148,35 @@ select * from detailed_contract;
 
 -- Hiển thị thông tin của tất cả nhân viên có trong hệ thống có tên bắt đầu là một trong các ký tự “H”, “T” hoặc “K” và có tối đa 15 kí tự.
 select * from employee;
-select * from employee where full_name regexp '([a-z]*) )*((h)[a-z]*)+$'; 
+select * from employee where full_name like '% h%' or full_name like '% t%' or full_name like '% k%'; 
 -- and length(full_name) <= 15;
 select * from customer 
 where year(curdate()) - year(date_of_birth) < 50 and year(curdate()) - year(date_of_birth) > 18 
 and address like '% Đà Nẵng' or address like '% Quảng Trị';
 select  year(curdate()) - year(date_of_birth) from customer;
--- (select year(curdate()) - year(date_of_birth)
+-- Đếm xem tương ứng với mỗi khách hàng đã từng đặt phòng bao nhiêu lần. Kết quả hiển thị được sắp xếp tăng dần theo số lần đặt phòng của khách hàng. Chỉ đếm những khách hàng nào có Tên loại khách hàng là “Diamond”.
+select customer.id_customer, full_name, name_customer_type, count(contract.id_customer) as number_of_bookings from customer 
+inner join customer_type 
+on customer.id_customer_type = customer_type.id_customer_type 
+and customer_type.id_customer_type = 1
+inner join contract 
+on customer.id_customer = contract.id_customer
+group by customer.id_customer
+order by count(contract.id_customer);
+
+-- 5.	Hiển thị ma_khach_hang, ho_ten, ten_loai_khach, ma_hop_dong, ten_dich_vu, ngay_lam_hop_dong, ngay_ket_thuc, tong_tien 
+select customer.id_customer, 
+full_name, 
+customer_type.name_customer_type, 
+contract.id_contract, 
+service.name_service, 
+contract.date_start_contract,
+contract.date_end_contract,
+service.rental_costs + (detailed_contract.quantity * accompanied_service.price) as total_price
+from customer
+left join customer_type on customer.id_customer_type = customer_type.id_customer_type
+left join contract on customer.id_customer = contract.id_customer and contract.id_contract is not null
+left join service on contract.id_service = service.id_service
+left join detailed_contract on detailed_contract.id_contract = contract.id_contract
+left join accompanied_service on accompanied_service.id_accompanied_service = detailed_contract.id_accompanied_service;
+-- where name_customer_type = 'diamond'; 
