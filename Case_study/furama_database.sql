@@ -148,9 +148,9 @@ select * from detailed_contract;
 
 -- Hiển thị thông tin của tất cả nhân viên có trong hệ thống có tên bắt đầu là một trong các ký tự “H”, “T” hoặc “K” và có tối đa 15 kí tự.
 select * from employee;
-select * from employee where full_name like '% h%' or full_name like '% t%' or full_name like '% k%'; 
--- and length(full_name) <= 15;
-select * from customer 
+select * from employee where full_name like '% h%' or full_name like '% t%' or full_name like '% k%' and length(full_name) <= 15;
+-- Hiển thị khách hàng nằm trong độ tuổi từ 18 đến 50 và ở Đà Nẵng hoặc Quảng Trị
+select *, year(curdate()) - year(date_of_birth) as age from customer 
 where year(curdate()) - year(date_of_birth) < 50 and year(curdate()) - year(date_of_birth) > 18 
 and address like '% Đà Nẵng' or address like '% Quảng Trị';
 select  year(curdate()) - year(date_of_birth) from customer;
@@ -158,25 +158,29 @@ select  year(curdate()) - year(date_of_birth) from customer;
 select customer.id_customer, full_name, name_customer_type, count(contract.id_customer) as number_of_bookings from customer 
 inner join customer_type 
 on customer.id_customer_type = customer_type.id_customer_type 
-and customer_type.id_customer_type = 1
 inner join contract 
 on customer.id_customer = contract.id_customer
+where customer_type.name_customer_type = 'diamond'
 group by customer.id_customer
 order by count(contract.id_customer);
 
 -- 5.	Hiển thị ma_khach_hang, ho_ten, ten_loai_khach, ma_hop_dong, ten_dich_vu, ngay_lam_hop_dong, ngay_ket_thuc, tong_tien 
 select customer.id_customer, 
-full_name, 
+customer.full_name, 
 customer_type.name_customer_type, 
 contract.id_contract, 
 service.name_service, 
 contract.date_start_contract,
 contract.date_end_contract,
-service.rental_costs + (detailed_contract.quantity * accompanied_service.price) as total_price
+service.rental_costs + ifnull(sum(detailed_contract.quantity * accompanied_service.price),0) as total_price 
 from customer
 left join customer_type on customer.id_customer_type = customer_type.id_customer_type
-left join contract on customer.id_customer = contract.id_customer and contract.id_contract is not null
+left join contract on contract.id_customer = customer.id_customer
 left join service on contract.id_service = service.id_service
 left join detailed_contract on detailed_contract.id_contract = contract.id_contract
-left join accompanied_service on accompanied_service.id_accompanied_service = detailed_contract.id_accompanied_service;
--- where name_customer_type = 'diamond'; 
+left join accompanied_service on accompanied_service.id_accompanied_service = detailed_contract.id_accompanied_service
+group by customer.id_customer, contract.id_contract;
+-- 6.	Hiển thị ma_dich_vu, ten_dich_vu, dien_tich, chi_phi_thue, ten_loai_dich_vu của tất cả các loại dịch vụ chưa từng được khách hàng thực hiện đặt từ quý 1 của năm 2021 (Quý 1 là tháng 1, 2, 3).
+select service.id_service, service.name_service, service.area, service.rental_costs, type_of_service.name_type_of_service 
+from service
+inner join type_of_service on service.id_type_of_service = type_of_service.id_type_of_service;
