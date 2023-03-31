@@ -183,4 +183,87 @@ group by customer.id_customer, contract.id_contract;
 -- 6.	Hiển thị ma_dich_vu, ten_dich_vu, dien_tich, chi_phi_thue, ten_loai_dich_vu của tất cả các loại dịch vụ chưa từng được khách hàng thực hiện đặt từ quý 1 của năm 2021 (Quý 1 là tháng 1, 2, 3).
 select service.id_service, service.name_service, service.area, service.rental_costs, type_of_service.name_type_of_service 
 from service
-inner join type_of_service on service.id_type_of_service = type_of_service.id_type_of_service;
+inner join type_of_service on service.id_type_of_service = type_of_service.id_type_of_service
+inner join contract on contract.id_service = service.id_service
+where contract.id_service not in (select id_service from contract where month(date_start_contract) in (1,2,3) and year(date_start_contract) = '2021')
+group by service.id_service;
+
+-- 7.	Hiển thị thông tin ma_dich_vu, ten_dich_vu, dien_tich, so_nguoi_toi_da, chi_phi_thue, ten_loai_dich_vu của tất cả các loại dịch vụ đã từng được khách hàng đặt phòng trong năm 2020 nhưng chưa từng được khách hàng đặt phòng trong năm 2021
+select service.id_service, service.name_service, service.area, service.max_people, service.rental_costs, type_of_service.name_type_of_service 
+from service
+inner join type_of_service on service.id_type_of_service = type_of_service.id_type_of_service
+inner join contract on contract.id_service = service.id_service
+where contract.id_service in (select id_service from contract where year(date_start_contract) like '2020')
+and contract.id_service not in (select id_service from contract where year(date_start_contract) like '2021')
+group by service.id_service;
+
+-- 8.	Hiển thị thông tin ho_ten khách hàng có trong hệ thống, với yêu cầu ho_ten không trùng nhau.
+
+-- cach 1: 
+select full_name from customer 
+union
+select full_name from customer;
+ 
+-- cach 2:
+select full_name from customer group by full_name;
+
+-- cach 3:
+select distinct full_name from customer;
+
+-- 9.	Thực hiện thống kê doanh thu theo tháng, nghĩa là tương ứng với mỗi tháng trong năm 2021 thì sẽ có bao nhiêu khách hàng thực hiện đặt phòng.
+select month(date_start_contract) as month_2021 , count(id_customer) as amount
+from contract
+where year(date_start_contract) = 2021
+group by month(date_start_contract)
+order by month(date_start_contract);
+
+-- 10.	Hiển thị thông tin tương ứng với từng hợp đồng thì đã sử dụng bao nhiêu dịch vụ đi kèm. Kết quả hiển thị bao gồm ma_hop_dong, ngay_lam_hop_dong, ngay_ket_thuc, tien_dat_coc, so_luong_dich_vu_di_kem (được tính dựa trên việc sum so_luong ở dich_vu_di_kem).
+select contract.id_contract, date_start_contract, date_end_contract, down_payment, ifnull(sum(detailed_contract.quantity),0) as amount 
+from contract
+left join detailed_contract on detailed_contract.id_contract = contract.id_contract
+group by contract.id_contract;
+
+-- 11.	Hiển thị thông tin các dịch vụ đi kèm đã được sử dụng bởi những khách hàng có ten_loai_khach là “Diamond” và có dia_chi ở “Vinh” hoặc “Quảng Ngãi”.
+select * 
+from accompanied_service
+inner join detailed_contract on accompanied_service.id_accompanied_service = detailed_contract.id_accompanied_service
+inner join contract on contract.id_contract = detailed_contract.id_contract
+inner join customer on customer.id_customer = contract.id_customer
+inner join customer_type on customer_type.id_customer_type = customer.id_customer_type
+where customer_type.name_customer_type like 'diamond' and customer.address like '% Vinh' or customer.address like '% Quảng Ngãi';
+ 
+ -- 12.	Hiển thị thông tin ma_hop_dong, ho_ten (nhân viên), ho_ten (khách hàng), so_dien_thoai (khách hàng), ten_dich_vu, so_luong_dich_vu_di_kem (được tính dựa trên việc sum so_luong ở dich_vu_di_kem), 
+ -- tien_dat_coc của tất cả các dịch vụ đã từng được khách hàng đặt vào 3 tháng cuối năm 2020 nhưng chưa từng được khách hàng đặt vào 6 tháng đầu năm 2021.
+ select contract.id_contract, employee.full_name, customer.full_name, customer.number_phone, service.name_service, contract.down_payment, ifnull(sum(detailed_contract.quantity),0) as amount
+ from contract
+ left join detailed_contract on detailed_contract.id_contract = contract.id_contract
+ left join employee on contract.id_employee = employee.id_employee 
+ left join customer on contract.id_customer = customer.id_customer
+ left join service on contract.id_service = service.id_service
+ where 
+ month(contract.date_start_contract) in (10,11,12) and year(contract.date_start_contract) = 2020 and 
+ contract.id_contract not in (select id_contract from contract where month(date_start_contract) in (1,2,3,4,5,6) and year(date_start_contract) = '2021');
+ 
+ -- 13.	Hiển thị thông tin các Dịch vụ đi kèm được sử dụng nhiều nhất bởi các Khách hàng đã đặt phòng. (Lưu ý là có thể có nhiều dịch vụ có số lần sử dụng nhiều như nhau)
+ select accompanied_service.id_accompanied_service, accompanied_service.name_accompanied_service, accompanied_service.price,  sum(detailed_contract.quantity) as amount from accompanied_service
+ inner join detailed_contract on detailed_contract.id_accompanied_service = accompanied_service.id_accompanied_service
+ group by accompanied_service.id_accompanied_service
+ order by amount desc;
+ 
+ -- 14.	Hiển thị thông tin tất cả các Dịch vụ đi kèm chỉ mới được sử dụng một lần duy nhất.
+ -- Thông tin hiển thị bao gồm ma_hop_dong, ten_loai_dich_vu, ten_dich_vu_di_kem, so_lan_su_dung (được tính dựa trên việc count các ma_dich_vu_di_kem).
+ select contract.id_contract, type_of_service.name_type_of_service, accompanied_service.name_accompanied_service, count(detailed_contract.id_accompanied_service) as amount
+ from contract
+ inner join detailed_contract on detailed_contract.id_contract = contract.id_contract
+ inner join accompanied_service on accompanied_service.id_accompanied_service = detailed_contract.id_accompanied_service
+ inner join service on service.id_service = contract.id_service
+ inner join type_of_service on type_of_service.id_type_of_service = service.id_type_of_service
+ group by accompanied_service.id_accompanied_service
+ having amount = 1;
+ 
+ -- 15.	Hiển thi thông tin của tất cả nhân viên bao gồm ma_nhan_vien, ho_ten, ten_trinh_do, ten_bo_phan, so_dien_thoai, dia_chi 
+ -- mới chỉ lập được tối đa 3 hợp đồng từ năm 2020 đến 2021.
+ select id_employee, full_name, degree, position, number_phone, address
+ from employee
+ inner join contract on employee.id_employee = contract.id_employee
+ ;
