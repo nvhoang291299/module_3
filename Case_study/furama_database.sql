@@ -263,7 +263,25 @@ where customer_type.name_customer_type like 'diamond' and customer.address like 
  
  -- 15.	Hiển thi thông tin của tất cả nhân viên bao gồm ma_nhan_vien, ho_ten, ten_trinh_do, ten_bo_phan, so_dien_thoai, dia_chi 
  -- mới chỉ lập được tối đa 3 hợp đồng từ năm 2020 đến 2021.
- select id_employee, full_name, degree, position, number_phone, address
+ select employee.id_employee, employee.full_name, degree.name_degree, position.name_position, employee.number_phone, employee.address
  from employee
  inner join contract on employee.id_employee = contract.id_employee
- ;
+ inner join position on employee.id_position = position.id_position
+ inner join degree on degree.id_degree = employee.id_degree
+ where count(contract.id_employee) <= 3
+ group by employee.id_employee;
+ 
+ # 16.	Xóa những Nhân viên chưa từng lập được hợp đồng nào từ năm 2019 đến năm 2021.
+ set sql_safe_updates = 0;
+ delete from employee
+ where employee.id_employee not in (select id_employee from contract where year(date_start_contract) between 2019 and 2021);
+ set sql_safe_updates = 1; 
+ 
+ # 17.	Cập nhật thông tin những khách hàng có ten_loai_khach từ Platinum lên Diamond, 
+ # chỉ cập nhật những khách hàng đã từng đặt phòng với Tổng Tiền thanh toán trong năm 2021 là lớn hơn 10.000.000 VNĐ.
+ #  20.	Hiển thị thông tin của tất cả các nhân viên và khách hàng có trong hệ thống, thông tin hiển thị bao gồm id (ma_nhan_vien, ma_khach_hang), ho_ten, email, so_dien_thoai, ngay_sinh, dia_chi.
+ select id_employee as id, full_name, email, number_phone, date_of_birth, address
+ from employee
+ union all
+ select id_customer as id, full_name, email, number_phone, date_of_birth, address
+ from customer;
