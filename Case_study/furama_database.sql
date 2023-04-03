@@ -245,10 +245,11 @@ where customer_type.name_customer_type like 'diamond' and customer.address like 
  contract.id_contract not in (select id_contract from contract where month(date_start_contract) in (1,2,3,4,5,6) and year(date_start_contract) = '2021');
  
  -- 13.	Hiển thị thông tin các Dịch vụ đi kèm được sử dụng nhiều nhất bởi các Khách hàng đã đặt phòng. (Lưu ý là có thể có nhiều dịch vụ có số lần sử dụng nhiều như nhau)
- select accompanied_service.id_accompanied_service, accompanied_service.name_accompanied_service, accompanied_service.price,  sum(detailed_contract.quantity) as amount from accompanied_service
+ select accompanied_service.id_accompanied_service, accompanied_service.name_accompanied_service, accompanied_service.price,  sum(detailed_contract.quantity) as amount 
+ from accompanied_service
  inner join detailed_contract on detailed_contract.id_accompanied_service = accompanied_service.id_accompanied_service
  group by accompanied_service.id_accompanied_service
- order by amount desc;
+ having max(amount);
  
  -- 14.	Hiển thị thông tin tất cả các Dịch vụ đi kèm chỉ mới được sử dụng một lần duy nhất.
  -- Thông tin hiển thị bao gồm ma_hop_dong, ten_loai_dich_vu, ten_dich_vu_di_kem, so_lan_su_dung (được tính dựa trên việc count các ma_dich_vu_di_kem).
@@ -276,9 +277,50 @@ where customer_type.name_customer_type like 'diamond' and customer.address like 
  delete from employee
  where employee.id_employee not in (select id_employee from contract where year(date_start_contract) between 2019 and 2021);
  set sql_safe_updates = 1; 
- 
+
  # 17.	Cập nhật thông tin những khách hàng có ten_loai_khach từ Platinum lên Diamond, 
  # chỉ cập nhật những khách hàng đã từng đặt phòng với Tổng Tiền thanh toán trong năm 2021 là lớn hơn 10.000.000 VNĐ.
+set sql_safe_updates = 0;
+update customer
+set id_customer_type = 1
+where customer.id_customer in (
+select id_customer from (
+select customer.id_customer, service.rental_costs + ifnull(sum(detailed_contract.quantity * accompanied_service.price),0) as total_price
+from customer
+left join customer_type on customer.id_customer_type = customer_type.id_customer_type
+left join contract on contract.id_customer = customer.id_customer
+left join service on contract.id_service = service.id_service
+left join detailed_contract on detailed_contract.id_contract = contract.id_contract
+left join accompanied_service on accompanied_service.id_accompanied_service = detailed_contract.id_accompanied_service
+group by customer.id_customer, contract.id_contract
+having total_price > 10000000)as lists);
+set sql_safe_updates = 1;
+select * from customer;
+ # 18.	Xóa những khách hàng có hợp đồng trước năm 2021 (chú ý ràng buộc giữa các bảng).
+ set sql_safe_updates = 0;
+ delete from detailed_contract
+ where id_contract in (select id_contract from contract
+ where year(date_start_contract) < 2021);
+#  delete from contract
+#  where id_contract not in (select id_contract from detailed_contract);
+ delete from customer
+ where id_customer not in (select id_customer from contract where year(date_start_contract) < 2021);
+  set sql_safe_updates = 1;
+  
+  select * from customer;
+ # 19.	Cập nhật giá cho các dịch vụ đi kèm được sử dụng trên 10 lần trong năm 2020 lên gấp đôi.
+ set sql_safe_updates = 0;
+ update accompanied_service
+ set accompanied_service.price = price * 2
+ where id_accompanied_service in (
+ select id_accompanied_service from (
+ select accompanied_service.id_accompanied_service 
+ from accompanied_service
+ inner join detailed_contract on detailed_contract.id_accompanied_service = accompanied_service.id_accompanied_service
+ inner join contract on contract.id_contract = detailed_contract.id_contract
+ where year(date_start_contract) = 2020 and quantity > 10) as id);
+ set sql_safe_updates = 1;
+
  #  20.	Hiển thị thông tin của tất cả các nhân viên và khách hàng có trong hệ thống, thông tin hiển thị bao gồm id (ma_nhan_vien, ma_khach_hang), ho_ten, email, so_dien_thoai, ngay_sinh, dia_chi.
  select id_employee as id, full_name, email, number_phone, date_of_birth, address
  from employee
