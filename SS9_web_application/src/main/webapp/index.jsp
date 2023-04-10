@@ -26,7 +26,8 @@
             <p>description: ${desc}</p>
             <p>price: ${price}$</p>
             <p>discount percent: ${discount}</p>
-            <p>Display discount: ${amount}</p>
+            <p>discount amount: ${amount}</p>
+            <p>discount price: ${discountPrice}</p>
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>

@@ -29,13 +29,15 @@ public class HelloServlet extends HttpServlet {
         int price = Integer.parseInt(req.getParameter("prices"));
         float discount = Float.parseFloat(req.getParameter("discount"));
         double amountFlag;
+        double discountPrice;
         amountFlag = price * discount * 0.01;
-
+        discountPrice = price - amountFlag;
 
         req.setAttribute("desc", desc);
         req.setAttribute("price", price);
         req.setAttribute("discount", discount);
         req.setAttribute("amount", amountFlag);
+        req.setAttribute("discountPrice", discountPrice);
         req.getRequestDispatcher("/index.jsp").forward(req, resp);
     }
 
