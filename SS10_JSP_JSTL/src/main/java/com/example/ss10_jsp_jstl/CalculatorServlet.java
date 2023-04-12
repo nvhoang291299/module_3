@@ -28,7 +28,7 @@ public class CalculatorServlet extends HttpServlet {
             request.setAttribute("result", result);
             request.getRequestDispatcher("/index2.jsp").forward(request, response);
         }catch (Exception e){
-            e.printStackTrace();
+            request.getRequestDispatcher("/404NotFound.jsp").forward(request, response);
         }
     }
 }
