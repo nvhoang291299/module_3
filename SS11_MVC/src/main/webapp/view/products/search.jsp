@@ -1,8 +1,8 @@
 <%--
   Created by IntelliJ IDEA.
   User: Admin
-  Date: 12/4/2023
-  Time: 10:38 AM
+  Date: 13/4/2023
+  Time: 10:18 AM
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
@@ -17,27 +17,9 @@
     <title>Title</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
           integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <style>
-        a {
-            text-decoration: none;
-            color: white;
-        }
-    </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="text-center">List product</h1>
-        <div class="mb-2">
-            <button type="submit" class="btn btn-primary"><a href="/list?actionUser=create">Create</a></button>
-
-        </div>
-        <form method="post" class="mb-2">
-            <label for="search">
-                <button type="submit" class="btn btn-primary">Search</button>
-            </label>
-            <input type="search" name="search" id="search" placeholder="enter name product...">
-            <input type="hidden" name="actionUser"  value="search" >
-        </form>
         <table class="table table-striped text-center border bound-1">
             <thead>
             <tr>
@@ -49,7 +31,7 @@
             </tr>
             </thead>
             <tbody>
-            <c:forEach var="product" items="${products}" varStatus="loop">
+            <c:forEach var="product" items="${list}" varStatus="loop">
                 <tr>
                     <td>${loop.count}</td>
                     <td>${product.getNameProduct()}</td>
@@ -57,13 +39,11 @@
                     <td>${product.getDescription()}</td>
                     <td>${product.getProducer()}</td>
                     <td><button type="submit" class="btn btn-primary"><a href="/list?actionUser=update&id=${product.getId()}">Update</a></button>
-                    <button type="submit" class="btn btn-danger"><a href="/list?actionUser=delete&id=${product.getId()}">Delete</a></button></td>
-
+                        <button type="submit" class="btn btn-danger"><a href="/list?actionUser=delete&id=${product.getId()}">Delete</a></button></td>
                 </tr>
             </c:forEach>
             </tbody>
         </table>
-
     </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"

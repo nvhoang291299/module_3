@@ -15,11 +15,33 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public void findById(int idEdit) {
+    public Products findById(int idEdit) {
+        List<Products> list = iProductRepository.findAll();
         boolean flag = iProductRepository.findById(idEdit);
         if (flag == true) {
-
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getId() == idEdit) {
+                    return list.get(i);
+                }
+            }
         }
+        return null;
+    }
+
+    @Override
+    public List<Products> findByName(String nameSearch) {
+        List<Products> listSearch = iProductRepository.findByName(nameSearch);
+        return listSearch;
+    }
+
+    @Override
+    public void delete(Products productDel) {
+        iProductRepository.deleteProduct(productDel);
+    }
+
+    @Override
+    public void update(Products product) {
+        iProductRepository.update(product);
     }
 
     @Override

@@ -8,5 +8,11 @@ public interface IProductService {
     List<Products> findAll();
     void save(Products product);
 
-    void findById(int idEdit);
+    Products findById(int idEdit);
+
+    void update(Products product);
+
+    void delete(Products product);
+
+    List<Products> findByName(String nameSearch);
 }
