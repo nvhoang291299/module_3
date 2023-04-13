@@ -12,7 +12,7 @@ public interface IProductRepository {
 
     void update(Products product);
 
-    void deleteProduct(Products productDel);
+    void deleteProduct(int idDel);
 
     List<Products> findByName(String nameSearch);
 }

@@ -12,7 +12,7 @@ public interface IProductService {
 
     void update(Products product);
 
-    void delete(Products product);
+    void delete(int idDel);
 
     List<Products> findByName(String nameSearch);
 }

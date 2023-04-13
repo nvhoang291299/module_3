@@ -33,13 +33,15 @@ public class ProductServlet extends HttpServlet {
                 request.getRequestDispatcher("/view/products/update.jsp").forward(request, response);
                 break;
             case "delete":
-                int idDel = Integer.parseInt(request.getParameter("id"));
-                iProductService.findById(idDel);
-                request.getRequestDispatcher("/view/products/delete.jsp").forward(request, response);
+                int idDel = Integer.parseInt(request.getParameter("idDel"));
+                iProductService.delete(idDel);
+                response.sendRedirect("/list");
                 break;
+
             case "search":
-                String nameSearch = request.getParameter("search");
-                iProductService.findByName(nameSearch);
+                String search = request.getParameter("search");
+                request.setAttribute("products", iProductService.findByName(search));
+                request.getRequestDispatcher("/view/products/list.jsp").forward(request, response);
                 break;
             default:
                 request.setAttribute("products", iProductService.findAll());
@@ -61,12 +63,6 @@ public class ProductServlet extends HttpServlet {
                 break;
             case "update":
                 updateProduct(req, resp);
-                break;
-            case "delete":
-                deleteProduct(req, resp);
-                break;
-            case "search":
-                searchProduct(req, resp);
                 break;
         }
     }
@@ -93,17 +89,5 @@ public class ProductServlet extends HttpServlet {
         productEdit.setProducer(editProducer);
         iProductService.update(productEdit);
         resp.sendRedirect("/list");
-    }
-    private void deleteProduct(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        int idDel = Integer.parseInt(req.getParameter("id"));
-        Products product = iProductService.findById(idDel);
-        iProductService.delete(product);
-        resp.sendRedirect("/list");
-    }
-    private void searchProduct(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-        String searchName = req.getParameter("search");
-        List<Products> list = iProductService.findByName(searchName);
-        req.setAttribute("list", list);
-        req.getRequestDispatcher("/view/products/search.jsp").forward(req, resp);
     }
 }

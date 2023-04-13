@@ -30,13 +30,14 @@ public class ProductService implements IProductService {
 
     @Override
     public List<Products> findByName(String nameSearch) {
+
         List<Products> listSearch = iProductRepository.findByName(nameSearch);
         return listSearch;
     }
 
     @Override
-    public void delete(Products productDel) {
-        iProductRepository.deleteProduct(productDel);
+    public void delete(int idDel) {
+        iProductRepository.deleteProduct(idDel);
     }
 
     @Override

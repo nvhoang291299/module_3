@@ -38,13 +38,14 @@ public class ProductRepository implements IProductRepository {
     }
 
     @Override
-    public void deleteProduct(Products productDel) {
+    public void deleteProduct(int idDel) {
         for (Products product: products) {
-            if (product.getId()==productDel.getId()){
+            if (product.getId()== idDel){
                 products.remove(product);
                 break;
             }
         }
+        System.out.println(products);
     }
 
     @Override
