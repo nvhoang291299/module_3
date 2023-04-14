@@ -25,22 +25,28 @@ public class UserServlet extends HttpServlet {
             case "create":
                 request.getRequestDispatcher("/view/create.jsp").forward(request, response);
                 break;
-//            case "update":
-//                int idEdit = Integer.parseInt(request.getParameter("id"));
-//                iUserService.findById(idEdit);
-//                request.getRequestDispatcher("/view/update.jsp").forward(request, response);
-//                break;
-//            case "delete":
-//                int idDel = Integer.parseInt(request.getParameter("idDel"));
-//                iUserService.delete(idDel);
-//                response.sendRedirect("/list");
-//                break;
+            case "update":
+                int idEdit = Integer.parseInt(request.getParameter("id"));
+                iUserService.findById(idEdit);
+                request.setAttribute("user", iUserService.findById(idEdit));
+                request.getRequestDispatcher("/view/update.jsp").forward(request, response);
+                break;
+            case "delete":
+                int idDel = Integer.parseInt(request.getParameter("idDel"));
+                iUserService.delete(idDel);
+                response.sendRedirect("/user");
+                break;
 
-//            case "search":
-//                String search = request.getParameter("search");
-//                request.setAttribute("products", iUserService.findByName(search));
-//                request.getRequestDispatcher("/view/products/list.jsp").forward(request, response);
-//                break;
+            case "search":
+                String country = request.getParameter("search");
+                iUserService.findByCountry(country);
+                request.setAttribute("users", iUserService.findByCountry(country));
+                request.getRequestDispatcher("/view/list.jsp").forward(request, response);
+                break;
+            case "sort":
+                request.setAttribute("users",  iUserService.sortByName());
+                request.getRequestDispatcher("/view/list.jsp").forward(request, response);
+                break;
             default:
                 request.setAttribute("users", iUserService.findAll());
                 request.getRequestDispatcher("/view/list.jsp").forward(request, response);
@@ -59,9 +65,9 @@ public class UserServlet extends HttpServlet {
             case "create":
                 createUser(req, resp);
                 break;
-//            case "update":
-//                updateProduct(req, resp);
-//                break;
+            case "update":
+                updateUser(req, resp);
+                break;
         }
     }
     private void createUser(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
@@ -73,18 +79,16 @@ public class UserServlet extends HttpServlet {
         req.setAttribute("users", iUserService.findAll());
         req.getRequestDispatcher("/view/list.jsp").forward(req, resp);
     }
-//    private void updateProduct(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-//        int idEdit = Integer.parseInt(req.getParameter("id"));
-//        String editNameProduct = req.getParameter("nameProduct");
-//        int editPrice = Integer.parseInt(req.getParameter("price"));
-//        String  editDesc = req.getParameter("desc");
-//        String editProducer = req.getParameter("producer");
-//        Products productEdit = iProductService.findById(idEdit);
-//        productEdit.setNameProduct(editNameProduct);
-//        productEdit.setPrice(editPrice);
-//        productEdit.setDescription(editDesc);
-//        productEdit.setProducer(editProducer);
-//        iProductService.update(productEdit);
-//        resp.sendRedirect("/list");
-//    }
+    private void updateUser(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        int idEdit = Integer.parseInt(req.getParameter("id"));
+        String name = req.getParameter("name");
+        String email = req.getParameter("email");
+        String  country = req.getParameter("country");
+        User user = iUserService.findById(idEdit);
+        user.setName(name);
+        user.setEmail(email);
+        user.setCountry(country);
+        iUserService.update(user);
+        resp.sendRedirect("/user");
+    }
 }

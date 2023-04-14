@@ -8,4 +8,14 @@ public interface IUserService {
     List<User> findAll();
 
     void save(User user);
+
+    User findById(int idEdit);
+
+    void update(User user);
+
+    void delete(int idDel);
+
+    List<User> findByCountry(String country);
+
+    List<User> sortByName();
 }
