@@ -1,0 +1,167 @@
+package com.module3.ss12_crud.repository.impl;
+
+import com.module3.ss12_crud.model.User;
+import com.module3.ss12_crud.repository.IUserRepository;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class UserRepository implements IUserRepository {
+
+    @Override
+    public List<User> findAll() {
+        List<User> userList = new ArrayList<>();
+        try {
+            CallableStatement callableStatement = BaseRepository.getConnection().prepareCall("call get_all();");
+            ResultSet resultSet = callableStatement.executeQuery();
+
+            User user;
+            while(resultSet.next()){
+                user = new User();
+                user.setId(resultSet.getInt("id"));
+                user.setName(resultSet.getString("name"));
+                user.setEmail(resultSet.getString("email"));
+                user.setCountry(resultSet.getString("country"));
+
+                userList.add(user);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return userList;
+    }
+
+    @Override
+    public void save(User user) {
+        try {
+            PreparedStatement preparedStatement = BaseRepository.getConnection().prepareStatement("insert into users (name, email, country) values (?, ?, ?);");
+
+            preparedStatement.setString(1, user.getName());
+            preparedStatement.setString(2, user.getEmail());
+            preparedStatement.setString(3, user.getCountry());
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void update(User user) {
+        try {
+            CallableStatement callableStatement = BaseRepository.getConnection().prepareCall("call edit_user(?, ?, ?, ?);");
+
+            callableStatement.setString(1, user.getName());
+            callableStatement.setString(2, user.getEmail());
+            callableStatement.setString(3, user.getCountry());
+            callableStatement.setInt(4, user.getId());
+            callableStatement.executeUpdate();
+
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public List<User> findByCountry(String country) {
+        List<User> userList = new ArrayList<>();
+        try {
+            PreparedStatement preparedStatement = BaseRepository.getConnection().prepareStatement("select id, name, email, country from users where country like ?;");
+            preparedStatement.setString(1, country);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            User user;
+            while(resultSet.next()){
+                user = new User();
+                user.setId(resultSet.getInt("id"));
+                user.setName(resultSet.getString("name"));
+                user.setEmail(resultSet.getString("email"));
+                user.setCountry(resultSet.getString("country"));
+
+                userList.add(user);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return userList;
+    }
+
+    @Override
+    public void addUserPermission() {
+        Connection connection = null;
+        try {
+            connection = BaseRepository.getConnection();
+            connection.setAutoCommit(false);
+
+            PreparedStatement preparedStatement = connection.prepareStatement("insert into users(name, email, country) values ('nguyen van a', 'a@gmail.com', 'vietnam')");
+            preparedStatement.executeUpdate();
+            PreparedStatement preparedStatement1 = connection.prepareStatement("insert into users(name, email, country) values ('nguyen van a', 'a@gmail.com', 9)");
+            preparedStatement1.executeUpdate();
+
+            connection.commit();
+        } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void delete(int idDel) {
+        try {
+            CallableStatement callableStatement = BaseRepository.getConnection().prepareCall("call delete_user(?)");
+            callableStatement.setInt(1, idDel);
+            callableStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public List<User> sortByName() {
+        List<User> userList = new ArrayList<>();
+        try {
+            PreparedStatement preparedStatement = BaseRepository.getConnection().prepareStatement("select id, name, email, country from users order by name");
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            User user;
+            while (resultSet.next()) {
+                user = new User();
+                user.setId(resultSet.getInt("id"));
+                user.setName(resultSet.getString("name"));
+                user.setEmail(resultSet.getString("email"));
+                user.setCountry(resultSet.getString("country"));
+
+                userList.add(user);
+                }
+            } catch(SQLException e){
+                e.printStackTrace();
+            }
+        return null;
+        }
+
+    @Override
+    public User findById(int idEdit) {
+        try {
+            PreparedStatement preparedStatement = BaseRepository.getConnection().prepareStatement("select id, name, email, country from users where id = ?");
+            preparedStatement.setInt(1, idEdit);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            User user;
+            if(resultSet.next()){
+                user = new User();
+                user.setName(resultSet.getString("name"));
+                user.setEmail(resultSet.getString("email"));
+                user.setCountry(resultSet.getString("country"));
+
+                return user;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+}
